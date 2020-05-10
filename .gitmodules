@@ -44,11 +44,11 @@
 	branch = master
 [submodule "rhasspy-profile"]
 	path = rhasspy-profile
-	url = https://github.com/rhasspy/rhasspy-profile.git
+	url = url = https://github.com/daniele-athome/rhasspy-profile.git
 	branch = master
 [submodule "rhasspy-server-hermes"]
 	path = rhasspy-server-hermes
-	url = https://github.com/rhasspy/rhasspy-server-hermes.git
+	url = https://github.com/daniele-athome/rhasspy-server-hermes.git
 	branch = master
 [submodule "rhasspy-silence"]
 	path = rhasspy-silence
@@ -96,7 +96,7 @@
 	branch = master
 [submodule "rhasspy-homeassistant-hermes"]
 	path = rhasspy-homeassistant-hermes
-	url = https://github.com/rhasspy/rhasspy-homeassistant-hermes
+	url = https://github.com/daniele-athome/rhasspy-homeassistant-hermes.git
 	branch = master
 [submodule "rhasspy-wake-precise-hermes"]
 	path = rhasspy-wake-precise-hermes
@@ -104,7 +104,7 @@
 	branch = master
 [submodule "rhasspy-rasa-nlu-hermes"]
 	path = rhasspy-rasa-nlu-hermes
-	url = https://github.com/rhasspy/rhasspy-rasa-nlu-hermes
+	url = https://github.com/daniele-athome/rhasspy-rasa-nlu-hermes.git
 	branch = master
 [submodule "rhasspy-asr-deepspeech-hermes"]
 	path = rhasspy-asr-deepspeech-hermes
@@ -112,7 +112,7 @@
 	branch = master
 [submodule "rhasspy-snips-nlu-hermes"]
 	path = rhasspy-snips-nlu-hermes
-	url = https://github.com/rhasspy/rhasspy-snips-nlu-hermes
+	url = https://github.com/daniele-athome/rhasspy-snips-nlu-hermes
 	branch = master
 [submodule "rhasspy-asr-deepspeech"]
 	path = rhasspy-asr-deepspeech
@@ -134,3 +134,11 @@
 [submodule "rhasspy-tts-larynx-hermes"]
 	path = rhasspy-tts-larynx-hermes
 	url = https://github.com/rhasspy/rhasspy-tts-larynx-hermes.git
+[submodule "rhasspy-asr-google"]
+	path = rhasspy-asr-google
+	url = https://github.com/daniele-athome/rhasspy-asr-google.git
+	branch = master
+[submodule "rhasspy-asr-google-hermes"]
+	path = rhasspy-asr-google-hermes
+	url = https://github.com/daniele-athome/rhasspy-asr-google-hermes.git
+	branch = master

@@ -6,6 +6,8 @@ _LOGGER = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 _COMMANDS = [
+    "asr-google",
+    "asr-google-hermes",
     "asr-deepspeech-hermes",
     "asr-pocketsphinx",
     "asr-pocketsphinx-hermes",

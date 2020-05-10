@@ -1,6 +1,8 @@
 rhasspy-asr
 rhasspy-asr-deepspeech
 rhasspy-asr-deepspeech-hermes
+rhasspy-asr-google
+rhasspy-asr-google-hermes
 rhasspy-asr-kaldi
 rhasspy-asr-kaldi-hermes
 rhasspy-asr-pocketsphinx
