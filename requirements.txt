@@ -9,12 +9,13 @@ networkx==2.4
 num2words==0.5.10
 paho-mqtt==1.5.0
 pocketsphinx==0.1.15
+precise-runner==0.3.1
 PyAudio==0.2.11
 pydash==4.7.6
 pyyaml==5.3
 quart==0.11.3
 quart-cors==0.3.0
-rapidfuzz==0.7.8
+rapidfuzz==0.7.11
 snips-nlu==0.20.2
 swagger-ui-py==0.2.1
 webrtcvad==2.0.10
