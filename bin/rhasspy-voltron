@@ -147,10 +147,6 @@ if [[ -z "${no_web_server}" ]]; then
     trap finish EXIT
 fi
 
-# HACK set default PA devices
-pactl set-default-source $(pactl list short sources | grep ReSpeaker | grep mono | awk '{print $1}')
-pactl set-default-sink $(pactl list short sinks | grep pci | awk '{print $1}')
-
 # Run assistant
 log_path="${profile_dir}/supervisord.log"
 pid_path="${profile_dir}/supervisord.pid"
