@@ -20,11 +20,11 @@
 	branch = master
 [submodule "rhasspy-dialogue-hermes"]
 	path = rhasspy-dialogue-hermes
-	url = https://github.com/rhasspy/rhasspy-dialogue-hermes.git
+	url = https://github.com/daniele-athome/rhasspy-dialogue-hermes.git
 	branch = master
 [submodule "rhasspy-hermes"]
 	path = rhasspy-hermes
-	url = https://github.com/rhasspy/rhasspy-hermes.git
+	url = https://github.com/daniele-athome/rhasspy-hermes.git
 	branch = master
 [submodule "rhasspy-microphone-cli-hermes"]
 	path = rhasspy-microphone-cli-hermes
@@ -36,7 +36,7 @@
 	branch = master
 [submodule "rhasspy-nlu"]
 	path = rhasspy-nlu
-	url = https://github.com/rhasspy/rhasspy-nlu.git
+	url = https://github.com/daniele-athome/rhasspy-nlu.git
 	branch = master
 [submodule "rhasspy-nlu-hermes"]
 	path = rhasspy-nlu-hermes
@@ -60,7 +60,7 @@
 	branch = master
 [submodule "rhasspy-supervisor"]
 	path = rhasspy-supervisor
-	url = https://github.com/rhasspy/rhasspy-supervisor.git
+	url = https://github.com/daniele-athome/rhasspy-supervisor.git
 	branch = master
 [submodule "rhasspy-tts-cli-hermes"]
 	path = rhasspy-tts-cli-hermes
@@ -96,7 +96,7 @@
 	branch = master
 [submodule "rhasspy-homeassistant-hermes"]
 	path = rhasspy-homeassistant-hermes
-	url = https://github.com/daniele-athome/rhasspy-homeassistant-hermes.git
+	url = https://github.com/rhasspy/rhasspy-homeassistant-hermes.git
 	branch = master
 [submodule "rhasspy-wake-precise-hermes"]
 	path = rhasspy-wake-precise-hermes
