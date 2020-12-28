@@ -1,4 +1,4 @@
-AC_INIT([rhasspy], [2.5.7], [mike@rhasspy.org])
+AC_INIT([rhasspy], [2.5.8], [mike@rhasspy.org])
 AC_CONFIG_MACRO_DIR([m4])
 PC_INIT([3.7.0])
 
@@ -101,7 +101,7 @@ nanotts_from=prebuilt
 
 is_wavenet_enabled=yes
 
-is_larynx_enabled=no
+is_larynx_enabled=UNKNOWN
 larynx_arch=NONE
 
 dnl Set architectures based on host CPU
@@ -135,6 +135,8 @@ AS_CASE([$host_cpu],
         is_kenlm_enabled=yes
 
         is_nanotts_enabled=yes
+
+        is_larynx_enabled=no
     ],
     [armv7l],[
         dnl ARM 32-bit v7 (Pi 2/3/4)
@@ -165,6 +167,7 @@ AS_CASE([$host_cpu],
 
         is_nanotts_enabled=yes
 
+        is_larynx_enabled=yes
         larynx_arch=armv7l
     ],
     [aarch64],[
@@ -196,6 +199,7 @@ AS_CASE([$host_cpu],
 
         is_nanotts_enabled=yes
 
+        is_larynx_enabled=yes
         larynx_arch=aarch64
     ],
     [x86_64],[
@@ -227,6 +231,7 @@ AS_CASE([$host_cpu],
 
         is_nanotts_enabled=yes
 
+        is_larynx_enabled=yes
         larynx_arch=x86_64
     ])
 
@@ -515,6 +520,9 @@ AS_CASE([$enable_raven],
     [yes],[is_raven_enabled=yes],
     [no],[is_raven_enabled=no])
 
+AS_CASE([$enable_snowboy],
+    [no],[is_snowboy_enabled=no])
+
 AS_CASE([$enable_pocketsphinx],
         [no],[is_stt_pocketsphinx_enabled=no
               is_wake_pocketsphinx_enabled=no])
@@ -584,6 +592,10 @@ dnl In-place install
 AS_CASE([$enable_in_place],
     [yes],[is_in_place=yes],
     [no],[is_in_place=no])
+
+dnl Virtual environment
+AS_CASE([$enable_virtualenv],
+    [no],[is_virtualenv_enabled=no])
 
 dnl Online services
 AS_CASE([$enable_online],

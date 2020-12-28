@@ -1,17 +1,30 @@
-#!/usr/bin/env bash
-prefix="/usr/lib/rhasspy"
-export RHASSPY_BASE_DIR="${prefix}/share/rhasspy"
+#!/bin/bash
+APPDIR='/usr/lib/rhasspy'
 
-: "${PYTHON=python3}"
+export PATH="${APPDIR}/bin:${APPDIR}/usr/local/bin:${PATH}"
+export LD_LIBRARY_PATH="${APPDIR}/lib:${APPDIR}/usr/local/lib:${LD_LIBRARY_PATH}"
 
-export OLD_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-export OLD_PATH="${PATH}"
+export RHASSPY_BASE_DIR="${APPDIR}"
 
-export LD_LIBRARY_PATH="${prefix}/lib:${LD_LIBRARY_PATH}"
-export PATH="${prefix}/bin:${PATH}"
-export KALDI_DIR="${prefix}/lib/kaldi"
+# Set up Python path
+while read -r rhasspy_dir; do
+    if [[ -n "${rhasspy_dir}" ]]; then
+        module_dir="${RHASSPY_BASE_DIR}/${rhasspy_dir}"
+        if [[ -d "${module_dir}" ]]; then
+            PYTHONPATH="${module_dir}:${PYTHONPATH}"
 
-rhasspy_bin="${prefix}/rhasspy/rhasspy"
+            bin_dir="${module_dir}/bin"
+            if [[ -d "${bin_dir}" ]]; then
+                export PATH="${bin_dir}:${PATH}"
+            fi
+        fi
+    fi
+done < "${RHASSPY_BASE_DIR}/RHASSPY_DIRS"
+
+export PYTHONPATH="${RHASSPY_BASE_DIR}:${PYTHONPATH}"
+
+# Application-specific fixes
+export KALDI_DIR="${APPDIR}/lib/kaldi"
 
 config_home="${XDG_CONFIG_HOME}"
 if [[ -z "${config_home}" ]]; then
@@ -30,6 +43,7 @@ DEFINE_string 'certfile' '' 'SSL certificate file'
 DEFINE_string 'keyfile' '' 'SSL private key file (optional)'
 DEFINE_string 'http-host' '' 'Change host for web server (default: localhost)'
 DEFINE_string 'http-port' '' 'Change port for web server (default: 12101)'
+DEFINE_string 'http-root' '' 'Change URL root for web server (default: /)'
 DEFINE_string 'local-mqtt-port' '' 'Change internal MQTT port (default: 12183)'
 DEFINE_boolean 'web-server' true 'Run Rhasspy web server'
 DEFINE_boolean 'generate-conf' true 'Generate supervisord conf from profile'
@@ -86,6 +100,7 @@ fi
 
 http_host="${FLAGS_http_host}"
 http_port="${FLAGS_http_port}"
+http_root="${FLAGS_http_root}"
 
 if [[ -n "${http_host}" ]]; then
     extra_web_args+=('--host' "${http_host}")
@@ -93,6 +108,10 @@ fi
 
 if [[ -n "${http_port}" ]]; then
     extra_web_args+=('--port' "${http_port}")
+fi
+
+if [[ -n "${http_root}" ]]; then
+    extra_web_args+=('--url-root' "${http_root}")
 fi
 
 # Extra arguments to pass to rhasspy-supervisor
@@ -112,28 +131,26 @@ echo 'Starting up...'
 
 if [[ -z "${no_generate_conf}" ]]; then
     # Re-generate supervisord conf from profile
-    "${rhasspy_bin}" \
-        supervisor \
-        --profile "${profile_name}" \
-        --user-profiles "${user_profiles}" \
-        --docker-compose '' \
-        "${extra_supervisor_args[@]}" \
-        --debug
+    python3 -m rhasspysupervisor \
+            --profile "${profile_name}" \
+            --user-profiles "${user_profiles}" \
+            --docker-compose '' \
+            "${extra_supervisor_args[@]}" \
+            --debug
 fi
 
 if [[ -z "${RHASSPY_WEB_DIR}" ]]; then
-    # Look for web interface files in base directory
-    RHASSPY_WEB_DIR="${RHASSPY_BASE_DIR}/web"
+    # Look for web interface files in rhasspy-server-hermes
+    RHASSPY_WEB_DIR="${RHASSPY_BASE_DIR}/rhasspy-server-hermes/web"
 fi
 
 if [[ -z "${no_web_server}" ]]; then
     # Run web server
-    "${rhasspy_bin}" \
-        server-hermes \
-        --profile "${profile_name}" \
-        --user-profiles "${user_profiles}" \
-        --web-dir "${RHASSPY_WEB_DIR}" \
-        "${extra_web_args[@]}" \
+    python3 -m rhasspyserver_hermes \
+            --profile "${profile_name}" \
+            --user-profiles "${user_profiles}" \
+            --web-dir "${RHASSPY_WEB_DIR}" \
+            "${extra_web_args[@]}" \
         &
 
     # Kill the process above when this terminal exits

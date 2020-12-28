@@ -1,25 +1,27 @@
 #!/usr/bin/env bash
 set -e
 
+if [[ -z "$1" ]]; then
+    echo "Usage: build-appimage dist/"
+    exit 1
+fi
+
+dist_dir="$(realpath "$1")"
+mkdir -p "${dist_dir}"
+shift
+
 # Directory of *this* script
 this_dir="$( cd "$( dirname "$0" )" && pwd )"
 src_dir="$(realpath "${this_dir}/..")"
 
-download="${src_dir}/download"
-mkdir -p "${download}"
-
 version="$(cat "${src_dir}/VERSION")"
+out_version="${version}"
 
 # -----------------------------------------------------------------------------
 
-: "${PLATFORMS=linux/amd64,linux/arm/v7,linux/arm64,linux/arm/v6}"
-: "${DOCKER_REGISTRY=docker.io}"
+: "${PLATFORMS=linux/amd64,linux/arm/v7,linux/arm64}"
 
-DOCKERFILE="${src_dir}/Dockerfile"
-
-if [[ -n "${NOBUILDX}" ]]; then
-    DOCKERFILE="${DOCKERFILE}.nobuildx"
-fi
+DOCKERFILE="${src_dir}/Dockerfile.appimage"
 
 if [[ -n "${PROXY}" ]]; then
     if [[ -z "${PROXY_HOST}" ]]; then
@@ -52,28 +54,11 @@ if [[ -n "${PROXY}" ]]; then
     DOCKERFILE="${temp_dockerfile}"
 fi
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# Determine docker tags
-tags=()
+rm -f "${dist_dir}/rhasspy-${version}-"*.AppImage
 
-TAG_POSTFIX=''
-if [[ -n "${NOAVX}" ]]; then
-    # Image will use PyTorch compiled without AVX instructions.
-    # This will work with older CPUs like the Celeron.
-    TAG_POSTFIX='-noavx'
-
-    # Latest no AVX
-    tags+=(--tag "${DOCKER_REGISTRY}/rhasspy/rhasspy:noavx")
-else
-    # Latest (with AVX)
-    tags+=(--tag "${DOCKER_REGISTRY}/rhasspy/rhasspy:latest")
-fi
-
-# Specific version with or without AVX
-tags+=(--tag "${DOCKER_REGISTRY}/rhasspy/rhasspy:${version}${TAG_POSTFIX}")
-
-# -----------------------------------------------------------------------------
+echo "Building..."
 
 if [[ -n "${NOBUILDX}" ]]; then
     # Don't use docker buildx (single platform)
@@ -107,20 +92,55 @@ if [[ -n "${NOBUILDX}" ]]; then
         echo "Guessed architecture: ${TARGETARCH}${TARGETVARIANT}"
     fi
 
+    tag="rhasspy/rhasspy:appimage-${TARGETARCH}${TARGETVARIANT}"
+    if [[ -n "${NOAVX}" ]]; then
+        tag="${tag}-noavx"
+    fi
+
     docker build \
            "${src_dir}" \
            -f "${DOCKERFILE}" \
            --build-arg "TARGETARCH=${TARGETARCH}" \
            --build-arg "TARGETVARIANT=${TARGETVARIANT}" \
-           "${tags[@]}" \
+           --tag "${tag}" \
            "$@"
+
+    # Determine directory to copy .AppImage file into
+    if [[ -z "${TARGETVARIANT}" ]]; then
+        output_dir="${dist_dir}/linux_${TARGETARCH}"
+    else
+        output_dir="${dist_dir}/linux_${TARGETARCH}_${TARGETVARIANT}"
+    fi
+
+    mkdir -p "${output_dir}"
+    appimage_path="$(docker run --rm "${tag}" /bin/sh -c 'ls -1 /appimage/*.AppImage' | head -n1)"
+    echo "Copying ${appimage_path} to ${output_dir}"
+    docker cp "$(docker create --rm "${tag}"):${appimage_path}" "${output_dir}/"
 else
     # Use docker buildx (multi-platform)
     docker buildx build \
            "${src_dir}" \
            -f "${DOCKERFILE}" \
            "--platform=${PLATFORMS}" \
-           "${tags[@]}" \
-           --push \
+           --output "type=local,dest=${dist_dir}" \
            "$@"
+fi
+
+# Manually copy out
+in_amd64="${dist_dir}/linux_amd64/rhasspy-${version}-x86_64.AppImage"
+out_amd64="${dist_dir}/rhasspy-${out_version}-amd64.AppImage"
+if [[ -f "${in_amd64}" ]]; then
+    cp "${in_amd64}" "${out_amd64}"
+fi
+
+in_armhf="${dist_dir}/linux_arm_v7/rhasspy-${version}-armhf.AppImage"
+out_armhf="${dist_dir}/rhasspy_${out_version}-armhf.AppImage"
+if [[ -f "${in_armhf}" ]]; then
+    cp "${in_armhf}" "${out_armhf}"
+fi
+
+in_arm64="${dist_dir}/linux_arm64/rhasspy-${version}-aarch64.AppImage"
+out_arm64="${dist_dir}/rhasspy_${out_version}-arm64.AppImage"
+if [[ -f "${in_arm64}" ]]; then
+    cp "${in_arm64}" "${out_arm64}"
 fi
